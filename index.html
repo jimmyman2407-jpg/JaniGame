@@ -3,784 +3,464 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Navidad a Distancia 🎄</title>
+  <title>Pixel Navidad para Janitzy 🎄</title>
   <style>
-    :root{
-      --bg1:#061224; --bg2:#0a1a33;
-      --ink:#eef2ff; --muted:#c7d2fe;
-      --gold:#fbbf24; --red:#ef4444; --green:#22c55e; --ice:#60a5fa;
-      --card: rgba(10, 18, 38, .65);
-    }
+    :root { --bg:#071225; --panel:rgba(10,18,38,.75); --ink:#eef2ff; --muted:#c7d2fe; --gold:#fbbf24; }
     *{box-sizing:border-box}
     body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      margin:0; min-height:100vh; display:grid; place-items:center; padding:18px;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color:var(--ink);
       background:
-        radial-gradient(1200px 800px at 20% 10%, rgba(34,197,94,.18) 0%, transparent 55%),
-        radial-gradient(1000px 700px at 80% 30%, rgba(239,68,68,.16) 0%, transparent 55%),
-        linear-gradient(135deg, var(--bg1), var(--bg2));
-      min-height:100vh;
-      display:flex; align-items:center; justify-content:center;
-      padding:18px;
+        radial-gradient(1000px 700px at 20% 10%, rgba(34,197,94,.18) 0%, transparent 55%),
+        radial-gradient(900px 650px at 80% 30%, rgba(239,68,68,.16) 0%, transparent 55%),
+        linear-gradient(135deg, var(--bg), #0b1c36);
     }
-    .wrap{width:min(980px, 100%); display:grid; grid-template-columns:1fr; gap:14px;}
-    header{display:flex; align-items:flex-end; justify-content:space-between; gap:12px;}
-    .title h1{margin:0; font-size: clamp(22px, 3.2vw, 34px); letter-spacing:.2px;}
-    .title p{margin:.35rem 0 0; color:var(--muted); font-size:14px}
-    .hud{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
+    .wrap{width:min(900px,100%); display:grid; gap:12px;}
+    header{display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap;}
+    h1{margin:0; font-size:clamp(20px,3vw,32px)}
+    p{margin:.25rem 0 0; color:var(--muted); font-size:14px}
+    .hud{display:flex; gap:10px; flex-wrap:wrap}
     .pill{
-      background: rgba(8,14,30,.72);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 13px;
-      color:var(--muted);
-      backdrop-filter: blur(8px);
+      background: var(--panel); border:1px solid rgba(255,255,255,.12);
+      padding:8px 12px; border-radius:999px; font-size:13px; color:var(--muted);
+      backdrop-filter: blur(10px);
     }
-    .pill b{color:var(--ink); font-weight:800}
+    .pill b{color:var(--ink)}
     .card{
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 18px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.40);
-      overflow:hidden;
-      position:relative;
+      background: var(--panel); border:1px solid rgba(255,255,255,.12);
+      border-radius:18px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.45);
+      position:relative; padding:12px;
     }
-    canvas{display:block; width:100%; height:auto; aspect-ratio:16/9; background:transparent;}
-    .overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:18px; pointer-events:none;}
+    canvas{
+      width:100%; height:auto; aspect-ratio:16/9; display:block;
+      image-rendering: pixelated; image-rendering: crisp-edges;
+      border-radius:12px;
+      background: rgba(0,0,0,.10);
+      touch-action: manipulation;
+    }
+    .overlay{
+      position:absolute; inset:12px; display:grid; place-items:center;
+      pointer-events:none;
+    }
     .panel{
-      width:min(660px, 100%);
-      background: rgba(8,14,30,.80);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 18px;
-      padding: 16px 16px 14px;
+      width:min(620px, 92%);
+      background: rgba(7,12,26,.82);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:16px; padding:14px 14px 12px;
       backdrop-filter: blur(10px);
       pointer-events:auto;
     }
     .panel h2{margin:0 0 6px; font-size:18px}
-    .panel p{margin:0 0 10px; color:var(--muted); font-size:14px; line-height:1.35}
+    .panel .txt{margin:0 0 10px; color:var(--muted); font-size:14px; line-height:1.35}
     .row{display:flex; gap:10px; flex-wrap:wrap}
     button{
-      border:0; border-radius:12px;
-      padding:10px 12px;
-      font-weight:900;
-      cursor:pointer;
-      background: linear-gradient(135deg, var(--gold), #ffd89a);
-      color:#1a1a1a;
+      border:0; border-radius:12px; padding:10px 12px; cursor:pointer;
+      font-weight:900; background:linear-gradient(135deg, var(--gold), #ffd89a); color:#1a1a1a;
     }
     button.secondary{
-      background: transparent;
-      border: 1px solid rgba(255,255,255,.18);
-      color: var(--ink);
-      font-weight:700;
+      background:transparent; border:1px solid rgba(255,255,255,.18);
+      color:var(--ink); font-weight:800;
     }
-    .tiny{font-size:12px; color:var(--muted); margin-top:8px}
-    .toast{
-      position:absolute; left:14px; bottom:14px;
-      max-width: 70%;
-      background: rgba(8,14,30,.82);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 14px;
-      padding:10px 12px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 16px 40px rgba(0,0,0,.35);
-      opacity:0; transform: translateY(8px);
-      transition: .25s ease;
-      pointer-events:none;
-    }
-    .toast.show{opacity:1; transform: translateY(0)}
-    .toast .k{font-weight:1000; color:var(--gold)}
-    .footer{display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; color:var(--muted); font-size:12px;}
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
-      padding: 2px 6px; border-radius: 8px;
-      color: var(--ink);
-    }
+    .tiny{font-size:12px; color:var(--muted)}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="title">
-        <h1>Navidad a Distancia 🎄</h1>
-        <p>Mini juego: junta regalos 🎁, evita bolas de nieve ❄️ y desbloquea tu carta 💌</p>
-      </div>
-      <div class="hud">
-        <div class="pill">Puntos: <b id="score">0</b></div>
-        <div class="pill">Mejor: <b id="best">0</b></div>
-        <div class="pill">Vidas: <b id="lives">3</b></div>
-      </div>
-    </header>
-
-    <div class="card">
-      <canvas id="game" width="1280" height="720"></canvas>
-
-      <div class="toast" id="toast">
-        <div class="k">🎄 Mensaje</div>
-        <div id="toastText"></div>
-      </div>
-
-      <div class="overlay" id="overlay">
-        <div class="panel" id="panel">
-          <h2 id="panelTitle">Instrucciones</h2>
-          <p id="panelText">
-            Eres un corazoncito con gorro de Santa. <b>Recoge 🎁</b> y evita <b style="color:#60a5fa">bolas de nieve ❄️</b>.
-          </p>
-          <div class="row">
-            <button id="btnStart">Jugar</button>
-            <button class="secondary" id="btnHow">¿Cómo se juega?</button>
-            <button class="secondary" id="btnLetter">Ver carta navideña</button>
-          </div>
-          <div class="tiny">
-            PC: <span class="kbd">←</span> <span class="kbd">→</span> o <span class="kbd">A</span>/<span class="kbd">D</span> · Saltar: <span class="kbd">Espacio</span><br/>
-            Móvil: toca izquierda/derecha · Doble toque para saltar
-          </div>
-        </div>
-      </div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Pixel Navidad 🎄</h1>
+      <p>Janitzy: muévete y junta regalos 🎁. Llega a <b>100</b> puntos para ganar 💌</p>
     </div>
+    <div class="hud">
+      <div class="pill">Puntos: <b id="score">0</b>/100</div>
+      <div class="pill">Mejor: <b id="best">0</b></div>
+    </div>
+  </header>
 
-    <div class="footer">
-      <div>Personaliza nombres/mensajes/carta en <span class="kbd">CONFIG</span>.</div>
-      <div>Regalo digital: gratis, navideño, y con corazón (literal).</div>
+  <div class="card">
+    <!-- Canvas interno bajo (pixel), escalado por CSS -->
+    <canvas id="c" width="320" height="180"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="panel" id="panel">
+        <h2 id="title">🎁 Instrucciones</h2>
+        <p class="txt" id="text">
+          Controlas a <b>Janitzy</b> (sprite pixel).<br/>
+          Muévete izquierda/derecha y recoge regalos.<br/>
+          Cada regalo vale <b style="color:#fbbf24">10 puntos</b>. Con <b>100</b> ganas.
+        </p>
+        <div class="row">
+          <button id="play">Jugar</button>
+          <button class="secondary" id="note">Ver carta</button>
+        </div>
+        <p class="tiny">PC: ← → / A D · Móvil: toca izquierda/derecha</p>
+      </div>
     </div>
   </div>
+</div>
 
 <script>
-/* =========================
-   CONFIG (edítalo a tu gusto)
-   ========================= */
+/* ========= CONFIG (personalizado) ========= */
 const CONFIG = {
-  parejaNombre: "Mi amor",
-  tuNombre: "Yo",
-  metaPuntosParaFinal: 120,
-  mensajes: [
-    { at: 15,  text: "Si hoy extrañas, acuérdate: la Navidad también es volver en pensamiento." },
-    { at: 35,  text: "Te guardo como un villancico: se me pega en el alma." },
-    { at: 60,  text: "Entre nieve y kilómetros… yo sigo eligiéndote." },
-    { at: 90,  text: "Cuando regreses, te debo una cita con luces y comida rica." },
-    { at: 120, text: "¡Desbloqueaste la carta navideña 💌! (botón: Ver carta navideña)" },
-  ],
-  cartaFinal: `
-    <h2 style="margin:0 0 8px">💌 Carta navideña para Mi amor</h2>
+  parejaNombre: "Janitzy",
+  tuNombre: "Gael",
+  meta: 100,
+  cartaHTML: `
+    <h2 style="margin:0 0 6px">💌 Feliz Navidad, Janitzy</h2>
     <p style="margin:0 0 10px; color:#c7d2fe; line-height:1.45">
-      Aunque andes viajando, yo te traigo cerquita en lo que pienso y en lo que cuido.
-      Esta Navidad no te la regalo en caja: te la regalo en intención.
+      Sé que ahorita estás de viaje, pero igual te siento cerquita.
+      Te hice este mini juego para que, aunque sea un ratito, el mundo se sienta más ligero.
     </p>
     <p style="margin:0 0 10px; color:#c7d2fe; line-height:1.45">
-      Gracias por ser hogar incluso cuando el mundo es aeropuerto.
-      Promesa: cuando vuelvas, te hago una noche con luces, risas y un abrazo largo.
-      Y si un día te pesa, acuérdate: <b style="color:#fbbf24">no estás sola</b>.
+      Que esta Navidad te abrace bonito, sin prisa, y cuando vuelvas te debo un plan bien puesto:
+      luces, comida rica y un abrazo largo del tamaño de todo lo que te extraño.
     </p>
-    <p style="margin:0; color:#c7d2fe">— Yo</p>
+    <p style="margin:0; color:#c7d2fe">— Gael</p>
   `
 };
 
-/* =========================
-   Juego: Christmas Heart Runner
-   ========================= */
-const canvas = document.getElementById("game");
+/* ========= SPRITE (24x32) + PALETA ========= */
+const SPRITE_24x32 = [
+"..........OOOOOO........",
+"........OOhhhhhhOO......",
+".......OhhhhhhhhhhO.....",
+"......OhhhHhhhhHhhhO....",
+".....OhhhHhhhhhhHhhhO...",
+".....OhhhhhsssshhhhO....",
+"....OhhhhhhsssshhhhhhO..",
+"....OhhhssskskssssshhO..",
+"....OhhhssssskssssshhO..",
+".....OhhhsssssssshhhO...",
+"......OhhhhhsshhhhhhO...",
+".......OOhhhhhhhhOO.....",
+".........OooooooO.......",
+".........OsssssO..ppp...",
+".........OsssssO.pPkkPp.", // <- carita del monito: 2 pixeles (ojos)
+".........OsssssO.pPkPp..",
+".........OsssssO..ppp...",
+"..........OwwwO...r.....",
+".........OwwwwwO..r.....",
+"........OwwwwwwwO.r.....",
+"........OwwwwwwwO.r.....",
+".........OwwwwwO..r.....",
+"..........OwwwO.........",
+"..........JjjJ..........",
+".........JjjjjJ.........",
+"........JjjjjjjJ........",
+"........JjjjjjjJ........",
+".........JjjjjJ.........",
+"..........JjjJ..........",
+"..........O..O..........",
+".........OO..OO.........",
+"........OO....OO........",
+];
+
+const PALETTE = {
+  ".": null,
+  "O": "#101010", // outline
+  "o": "#282828", // sombreado interno outline
+  "h": "#3A261C", // cabello
+  "H": "#6A4A35", // luz cabello
+  "s": "#D7A483", // piel
+  "w": "#F3F3F3", // playera
+  "j": "#9BB7D8", // jeans
+  "J": "#6F8FB5", // sombra jeans
+  "p": "#FF3CAB", // monito
+  "P": "#C22079", // sombra monito
+  "r": "#DC2A2A", // cable rojo
+  "k": "#000000", // carita (ojitos)
+};
+
+/* ========= GAME (sencillo) ========= */
+const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+
 const scoreEl = document.getElementById("score");
-const bestEl = document.getElementById("best");
-const livesEl = document.getElementById("lives");
-
+const bestEl  = document.getElementById("best");
 const overlay = document.getElementById("overlay");
-const panelTitle = document.getElementById("panelTitle");
-const panelText = document.getElementById("panelText");
-const btnStart = document.getElementById("btnStart");
-const btnHow = document.getElementById("btnHow");
-const btnLetter = document.getElementById("btnLetter");
-const toast = document.getElementById("toast");
-const toastText = document.getElementById("toastText");
+const titleEl = document.getElementById("title");
+const textEl  = document.getElementById("text");
+const playBtn = document.getElementById("play");
+const noteBtn = document.getElementById("note");
 
-let W = canvas.width, H = canvas.height;
-let raf = null;
+const W = canvas.width, H = canvas.height;
+const groundY = H - 22;
 
 const state = {
-  running: false,
-  gameOver: false,
-  score: 0,
-  best: Number(localStorage.getItem("xmas_best") || 0),
-  lives: 3,
-  speed: 6,
-  gravity: 0.55,
-  t: 0,
-  unlockedLetter: false,
-  shownMsgs: new Set(),
+  running:false,
+  score:0,
+  best:Number(localStorage.getItem("px_best") || 0),
+  won:false,
+  t:0
 };
 bestEl.textContent = state.best;
 
-const groundY = H * 0.80;
-
+// Player = Janitzy sprite (24x32)
+const SPR_W = 24;
+const SPR_H = 32;
+const SPR_SCALE = 1; // si quieres más grande: 2 (ojo: puede salirse del canvas)
 const player = {
-  x: W * 0.18,
-  y: groundY - 26,
-  r: 26,
-  vx: 0,
-  vy: 0,
-  onGround: true
+  x: W/2,
+  y: groundY,                 // y = "suelo" (pies)
+  w: SPR_W * SPR_SCALE,
+  h: SPR_H * SPR_SCALE,
+  vx: 0
 };
 
-const gifts = [];     // 🎁
-const snowballs = []; // ❄️ hazards
-const particles = []; // sparkles
-const flakes = [];    // falling snow
-
-for(let i=0;i<140;i++){
-  flakes.push({
-    x: Math.random()*W,
-    y: Math.random()*H,
-    r: Math.random()*2.2 + 0.6,
-    vy: Math.random()*1.4 + 0.6,
-    vx: (Math.random()*0.6 - 0.3),
-    tw: Math.random()*Math.PI*2
-  });
-}
+const gifts = [];
+const snow  = [];
 
 function reset(){
-  state.running = false;
-  state.gameOver = false;
+  state.running = true;
   state.score = 0;
-  state.lives = 3;
-  state.speed = 6;
+  state.won = false;
   state.t = 0;
-  state.unlockedLetter = false;
-  state.shownMsgs.clear();
+
+  player.x = W/2;
+  player.vx = 0;
 
   gifts.length = 0;
-  snowballs.length = 0;
-  particles.length = 0;
+  snow.length = 0;
 
-  player.x = W * 0.18;
-  player.y = groundY - player.r;
-  player.vx = 0; player.vy = 0; player.onGround = true;
+  for(let i=0;i<60;i++){
+    snow.push({ x: Math.random()*W, y: Math.random()*H, vy: 0.5 + Math.random()*1.2 });
+  }
 
   scoreEl.textContent = "0";
-  livesEl.textContent = String(state.lives);
-
   hideOverlay();
-  showToast("🎁 Junta regalos… y llega a la carta 💌");
 }
 
-function showOverlay(title, html){
-  overlay.style.display = "flex";
-  panelTitle.textContent = title;
-  panelText.innerHTML = html;
+function showOverlay(t, html){
+  overlay.style.display = "grid";
+  titleEl.textContent = t;
+  textEl.innerHTML = html;
 }
 function hideOverlay(){ overlay.style.display = "none"; }
 
-function showToast(text){
-  toastText.textContent = text;
-  toast.classList.add("show");
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(()=>toast.classList.remove("show"), 2500);
-}
-
 function spawnGift(){
-  const y = rand(H*0.32, groundY - 90);
-  gifts.push({ x: W + 60, y, r: rand(14, 18), wob: rand(0, Math.PI*2) });
-}
-function spawnSnowball(){
-  snowballs.push({
-    x: W + 90,
-    y: groundY - rand(12, 44),
-    r: rand(18, 26),
-    spin: rand(0, Math.PI*2)
+  gifts.push({
+    x: 8 + Math.random()*(W-16),
+    y: -10,
+    vy: 0.9 + Math.random()*0.8,
+    value: 10
   });
-}
-
-function addBurst(x,y, n=20){
-  for(let i=0;i<n;i++){
-    particles.push({
-      x, y, vx: rand(-3,3), vy: rand(-4,-1),
-      life: rand(18, 32)
-    });
-  }
 }
 
 function update(){
   state.t++;
 
-  // ramp
-  if(state.t % 260 === 0) state.speed += 0.35;
-
-  // spawns
-  if(state.t % 58 === 0) spawnGift();
-  if(state.t % 86 === 0) spawnSnowball();
-
-  // snow flakes
-  for(const f of flakes){
-    f.tw += 0.06;
-    f.x += f.vx + Math.sin(f.tw)*0.15;
+  // Snowfall
+  for(const f of snow){
     f.y += f.vy;
-    if(f.y > H+10){ f.y = -10; f.x = Math.random()*W; }
-    if(f.x < -10) f.x = W+10;
-    if(f.x > W+10) f.x = -10;
+    if(f.y > H+2){ f.y = -2; f.x = Math.random()*W; }
   }
 
-  // player physics
-  player.vy += state.gravity;
+  // Spawn gifts
+  if(state.t % 24 === 0) spawnGift();
+
+  // Move player (clamp según ancho sprite)
   player.x += player.vx;
-  player.y += player.vy;
+  player.x = clamp(player.x, player.w/2, W - player.w/2);
 
-  player.x = clamp(player.x, 60, W*0.62);
-  if(player.y + player.r >= groundY){
-    player.y = groundY - player.r;
-    player.vy = 0;
-    player.onGround = true;
-  } else player.onGround = false;
+  // Player box (top-left)
+  const pX = player.x - player.w/2;
+  const pY = player.y - player.h;
 
-  // move objects
-  for(const g of gifts){
-    g.x -= state.speed;
-    g.wob += 0.06;
-    g.y += Math.sin(g.wob) * 0.25;
-  }
-  for(const s of snowballs){
-    s.x -= state.speed * 1.08;
-    s.spin += 0.12;
-  }
-
-  while(gifts.length && gifts[0].x < -80) gifts.shift();
-  while(snowballs.length && snowballs[0].x < -120) snowballs.shift();
-
-  // collisions gifts
+  // Move gifts + collisions
   for(let i=gifts.length-1;i>=0;i--){
     const g = gifts[i];
-    if(dist(player.x, player.y, g.x, g.y) < player.r + g.r){
+    g.y += g.vy;
+
+    // collision AABB (gift ~10x10)
+    if(aabb(g.x-5,g.y-5,10,10, pX, pY, player.w, player.h)){
       gifts.splice(i,1);
-      state.score += 5;
+      state.score += g.value;
       scoreEl.textContent = String(state.score);
-      addBurst(g.x, g.y, 22);
-
-      if(state.score >= CONFIG.metaPuntosParaFinal) state.unlockedLetter = true;
-
-      for(const m of CONFIG.mensajes){
-        if(state.score >= m.at && !state.shownMsgs.has(m.at)){
-          state.shownMsgs.add(m.at);
-          showToast(m.text);
-        }
+      if(state.score >= CONFIG.meta){
+        win();
+        return;
       }
+      continue;
     }
-  }
 
-  // collisions snowballs
-  for(let i=snowballs.length-1;i>=0;i--){
-    const s = snowballs[i];
-    if(dist(player.x, player.y, s.x, s.y - s.r*0.2) < player.r + s.r - 6){
-      snowballs.splice(i,1);
-      state.lives -= 1;
-      livesEl.textContent = String(state.lives);
-      showToast("❄️ Nieve en la cara… pero seguimos.");
-      addBurst(player.x+10, player.y-8, 14);
-      if(state.lives <= 0){ endGame(); return; }
-    }
-  }
-
-  // particles
-  for(let i=particles.length-1;i>=0;i--){
-    const p = particles[i];
-    p.vy += 0.18;
-    p.x += p.vx; p.y += p.vy;
-    p.life -= 1;
-    if(p.life <= 0) particles.splice(i,1);
+    // offscreen
+    if(g.y > H+10) gifts.splice(i,1);
   }
 }
 
-function endGame(){
+function win(){
   state.running = false;
-  state.gameOver = true;
-  cancelAnimationFrame(raf);
+  state.won = true;
 
   if(state.score > state.best){
     state.best = state.score;
-    localStorage.setItem("xmas_best", String(state.best));
+    localStorage.setItem("px_best", String(state.best));
     bestEl.textContent = String(state.best);
   }
 
-  const extra = state.unlockedLetter
-    ? `<p style="margin:0 0 10px; color:#c7d2fe">Desbloqueaste la carta 💌 (botón “Ver carta navideña”).</p>`
-    : `<p style="margin:0 0 10px; color:#c7d2fe">Tip: llega a <b style="color:#fbbf24">${CONFIG.metaPuntosParaFinal}</b> puntos para desbloquear la carta 💌</p>`;
-
-  showOverlay(
-    "Fin (por ahora) 🎄",
-    `<p style="margin:0 0 8px; color:#c7d2fe">Puntaje: <b style="color:#fbbf24">${state.score}</b></p>
-     ${extra}
-     <p style="margin:0; color:#c7d2fe">La distancia es el clima. El amor es el abrigo.</p>`
+  showOverlay("🎄 ¡Ganaste! 💌",
+    `Llegaste a <b style="color:#fbbf24">${CONFIG.meta}</b> puntos.<br/>
+     Desbloqueaste la carta navideña para <b>${escapeHtml(CONFIG.parejaNombre)}</b>.`
   );
 }
 
-/* =========================
-   Render
-   ========================= */
 function draw(){
-  ctx.clearRect(0,0,W,H);
-  drawSky();
-  drawLights();
-  drawSnow();
-  drawGround();
-
-  for(const g of gifts) drawGift(g);
-  for(const s of snowballs) drawSnowball(s);
-
-  drawSantaHeart(player.x, player.y, player.r);
-
-  for(const p of particles){
-    ctx.globalAlpha = clamp(p.life/32, 0, 1);
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 2.2, 0, Math.PI*2);
-    ctx.fillStyle = "#fbbf24";
-    ctx.fill();
-    ctx.globalAlpha = 1;
-  }
-
-  // vignette
-  const v = ctx.createRadialGradient(W/2,H/2, H*0.1, W/2,H/2, H*0.9);
-  v.addColorStop(0, "rgba(0,0,0,0)");
-  v.addColorStop(1, "rgba(0,0,0,0.40)");
-  ctx.fillStyle = v;
+  // background
+  ctx.fillStyle = "#071225";
   ctx.fillRect(0,0,W,H);
 
-  ctx.globalAlpha = 0.95;
-  ctx.fillStyle = "rgba(255,255,255,0.78)";
-  ctx.font = "700 18px ui-sans-serif, system-ui";
-  ctx.fillText("🎁 +5 puntos   ❄️ -1 vida   Meta: carta 💌", 22, 36);
-  ctx.globalAlpha = 1;
-}
+  // moon (pixel)
+  pxCircle(270, 28, 10, "#c7d2fe");
+  pxCircle(267, 26, 3, "rgba(255,255,255,0.35)");
 
-function drawSky(){
   // stars
-  ctx.save();
-  ctx.globalAlpha = 0.8;
-  for(let i=0;i<80;i++){
-    const x = (i*193 + (state.t*0.35)) % W;
-    const y = (i*89) % (H*0.60);
-    const r = (i%7===0) ? 1.6 : 1.1;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI*2);
-    ctx.fillStyle = (i%13===0) ? "rgba(96,165,250,0.95)" : "rgba(255,255,255,0.9)";
-    ctx.fill();
+  for(let i=0;i<40;i++){
+    const x = (i*67 + state.t*0.2) % W;
+    const y = (i*41) % (H-40);
+    pxRect(x|0, y|0, 1, 1, (i%7===0) ? "#60a5fa" : "#eef2ff");
   }
-  ctx.restore();
 
-  // moon glow
-  ctx.save();
-  const mg = ctx.createRadialGradient(W*0.82, H*0.18, 0, W*0.82, H*0.18, 170);
-  mg.addColorStop(0, "rgba(255,255,255,0.20)");
-  mg.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = mg;
-  ctx.beginPath(); ctx.arc(W*0.82, H*0.18, 170, 0, Math.PI*2); ctx.fill();
-  ctx.restore();
-}
-
-function drawLights(){
-  // string of christmas lights at top
-  ctx.save();
-  ctx.globalAlpha = 0.85;
-  ctx.strokeStyle = "rgba(255,255,255,0.25)";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(0, 70);
-  for(let x=0; x<=W; x+=120){
-    ctx.quadraticCurveTo(x+60, 40, x+120, 70);
+  // string lights (top)
+  for(let x=6; x<W; x+=20){
+    const y = 14 + (((x/20)|0)%2);
+    pxRect(x, y, 2, 1, "rgba(255,255,255,0.25)");
+    const c = ["#ef4444","#22c55e","#fbbf24","#60a5fa"][(((x/20)|0)%4)];
+    pxRect(x, y+2, 3, 3, c);
   }
-  ctx.stroke();
 
-  const colors = ["#ef4444","#22c55e","#fbbf24","#60a5fa"];
-  for(let i=0;i<12;i++){
-    const x = 40 + i*(W-80)/11;
-    const y = 70 + Math.sin((i*0.7)+(state.t*0.03))*4;
-    const c = colors[i%colors.length];
-    // bulb glow
-    const g = ctx.createRadialGradient(x,y,0,x,y,18);
-    g.addColorStop(0, c+"cc");
-    g.addColorStop(1, c+"00");
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(x,y,18,0,Math.PI*2); ctx.fill();
-    // bulb
-    ctx.fillStyle = c;
-    ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fill();
+  // snow
+  for(const f of snow){
+    pxRect(f.x|0, f.y|0, 1, 1, "rgba(255,255,255,0.9)");
   }
-  ctx.restore();
-}
 
-function drawSnow(){
-  ctx.save();
-  ctx.globalAlpha = 0.85;
-  for(const f of flakes){
-    ctx.beginPath();
-    ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    ctx.fill();
+  // ground
+  pxRect(0, groundY+2, W, H-(groundY+2), "rgba(255,255,255,0.10)");
+  pxRect(0, groundY+1, W, 1, "rgba(255,255,255,0.18)");
+
+  // gifts
+  for(const g of gifts){
+    drawGift(g.x|0, g.y|0);
   }
-  ctx.restore();
-}
 
-function drawGround(){
-  // snow floor
-  ctx.save();
-  const grd = ctx.createLinearGradient(0, groundY, 0, H);
-  grd.addColorStop(0, "rgba(255,255,255,0.06)");
-  grd.addColorStop(1, "rgba(255,255,255,0.16)");
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, groundY, W, H-groundY);
-
-  // horizon line
-  ctx.strokeStyle = "rgba(255,255,255,0.18)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, groundY);
-  ctx.lineTo(W, groundY);
-  ctx.stroke();
-
-  // soft snow bumps
-  ctx.globalAlpha = 0.12;
-  ctx.fillStyle = "white";
-  for(let i=0;i<9;i++){
-    const x = (i*160 - (state.t*1.2)) % (W+200) - 100;
-    const y = groundY + 18;
-    ctx.beginPath();
-    ctx.ellipse(x, y, 120, 28, 0, 0, Math.PI*2);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawGift(g){
-  ctx.save();
-  // glow
-  const glow = ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,34);
-  glow.addColorStop(0,"rgba(251,191,36,0.45)");
-  glow.addColorStop(1,"rgba(251,191,36,0)");
-  ctx.fillStyle = glow;
-  ctx.beginPath(); ctx.arc(g.x,g.y,34,0,Math.PI*2); ctx.fill();
-
-  // box
-  const w = 30, h = 24;
-  const x = g.x - w/2, y = g.y - h/2;
-  roundRect(x,y,w,h,6);
-  ctx.fillStyle = "rgba(34,197,94,0.95)";
-  ctx.fill();
-
-  // ribbon
-  ctx.fillStyle = "rgba(239,68,68,0.95)";
-  ctx.fillRect(g.x-3, y, 6, h);
-  ctx.fillRect(x, g.y-3, w, 6);
-
-  // bow
-  ctx.beginPath();
-  ctx.moveTo(g.x, y-6);
-  ctx.quadraticCurveTo(g.x-10, y-18, g.x-2, y-10);
-  ctx.quadraticCurveTo(g.x-2, y-10, g.x, y-6);
-  ctx.quadraticCurveTo(g.x+2, y-10, g.x+10, y-18);
-  ctx.quadraticCurveTo(g.x+2, y-10, g.x, y-6);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-function drawSnowball(s){
-  ctx.save();
-  // glow
-  const glow = ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,40);
-  glow.addColorStop(0,"rgba(96,165,250,0.35)");
-  glow.addColorStop(1,"rgba(96,165,250,0)");
-  ctx.fillStyle = glow;
-  ctx.beginPath(); ctx.arc(s.x,s.y,40,0,Math.PI*2); ctx.fill();
-
-  // ball
-  ctx.beginPath();
-  ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-  ctx.fillStyle = "rgba(255,255,255,0.92)";
-  ctx.fill();
-  ctx.strokeStyle = "rgba(96,165,250,0.45)";
-  ctx.lineWidth = 3;
-  ctx.stroke();
-
-  // little ice lines
-  ctx.globalAlpha = 0.55;
-  ctx.strokeStyle = "rgba(96,165,250,0.75)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(s.x, s.y, s.r*0.55, s.spin, s.spin + Math.PI*0.85);
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawSantaHeart(x,y,r){
-  ctx.save();
-
-  // shadow
-  ctx.globalAlpha = 0.22;
-  ctx.beginPath();
-  ctx.ellipse(x-10, y+14, r*0.85, r*0.55, 0, 0, Math.PI*2);
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  ctx.fill();
-  ctx.globalAlpha = 1;
-
-  // heart
-  ctx.translate(x,y);
-  const s = r/18;
-  ctx.scale(s,s);
-  ctx.beginPath();
-  ctx.moveTo(0, 10);
-  ctx.bezierCurveTo(-18, -6, -18, -24, 0, -14);
-  ctx.bezierCurveTo(18, -24, 18, -6, 0, 10);
-  const grad = ctx.createLinearGradient(-20,-20,20,20);
-  grad.addColorStop(0,"rgba(239,68,68,0.98)");
-  grad.addColorStop(1,"rgba(251,191,36,0.98)");
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  // highlight
-  ctx.globalAlpha = 0.35;
-  ctx.beginPath();
-  ctx.ellipse(-6,-10,6,9, -0.2, 0, Math.PI*2);
-  ctx.fillStyle = "white";
-  ctx.fill();
-  ctx.globalAlpha = 1;
-
-  // Santa hat (simple)
-  // brim
-  ctx.fillStyle = "rgba(255,255,255,0.95)";
-  ctx.beginPath();
-  ctx.roundRect(-18, -22, 36, 10, 6);
-  ctx.fill();
-  // hat body
-  ctx.fillStyle = "rgba(239,68,68,0.95)";
-  ctx.beginPath();
-  ctx.moveTo(-14, -22);
-  ctx.quadraticCurveTo(10, -52, 18, -30);
-  ctx.quadraticCurveTo(12, -32, -14, -22);
-  ctx.fill();
-  // pompom
-  ctx.fillStyle = "rgba(255,255,255,0.95)";
-  ctx.beginPath();
-  ctx.arc(20, -30, 6, 0, Math.PI*2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-function roundRect(x,y,w,h,r){
-  const rr = Math.min(r, w/2, h/2);
-  ctx.beginPath();
-  ctx.moveTo(x+rr, y);
-  ctx.arcTo(x+w, y, x+w, y+h, rr);
-  ctx.arcTo(x+w, y+h, x, y+h, rr);
-  ctx.arcTo(x, y+h, x, y, rr);
-  ctx.arcTo(x, y, x+w, y, rr);
-  ctx.closePath();
+  // player sprite (Janitzy)
+  const topLeftX = (player.x - player.w/2) | 0;
+  const topLeftY = (player.y - player.h) | 0;
+  drawSprite(SPRITE_24x32, PALETTE, topLeftX, topLeftY, SPR_SCALE);
 }
 
 function loop(){
   if(!state.running) return;
   update();
   draw();
-  raf = requestAnimationFrame(loop);
+  requestAnimationFrame(loop);
 }
 
-/* =========================
-   Controles
-   ========================= */
+/* ========= Pixel sprites ========= */
+function drawGift(x,y){
+  // box 8x8
+  pxRect(x-4, y-4, 8, 8, "#22c55e");
+  // ribbon
+  pxRect(x-1, y-4, 2, 8, "#ef4444");
+  pxRect(x-4, y-1, 8, 2, "#ef4444");
+  // shine
+  pxRect(x-3, y-3, 2, 1, "rgba(255,255,255,0.35)");
+}
+
+function drawSprite(spriteLines, palette, x, y, scale=1){
+  for(let row=0; row<spriteLines.length; row++){
+    const line = spriteLines[row];
+    for(let col=0; col<line.length; col++){
+      const ch = line[col];
+      const color = palette[ch];
+      if(!color) continue;
+      pxRect(x + col*scale, y + row*scale, scale, scale, color);
+    }
+  }
+}
+
+/* ========= Controls ========= */
 const keys = new Set();
-window.addEventListener("keydown", (e)=>{
+addEventListener("keydown", e=>{
   keys.add(e.key.toLowerCase());
-  if(["arrowleft","arrowright","a","d"," "].includes(e.key.toLowerCase()) || e.key === " ") e.preventDefault();
-  if(e.key === " ") jump();
+  if(["arrowleft","arrowright","a","d"].includes(e.key.toLowerCase())) e.preventDefault();
   applyMove();
 });
-window.addEventListener("keyup", (e)=>{
+addEventListener("keyup", e=>{
   keys.delete(e.key.toLowerCase());
   applyMove();
 });
 function applyMove(){
   const left = keys.has("arrowleft") || keys.has("a");
   const right = keys.has("arrowright") || keys.has("d");
-  player.vx = (right? 6.5 : 0) + (left? -6.5 : 0);
-}
-function jump(){
-  if(player.onGround){
-    player.vy = -12.5;
-    player.onGround = false;
-  }
+  player.vx = (right? 2 : 0) + (left? -2 : 0);
 }
 
-// Touch: tap left/right, double tap jump
-let lastTap = 0;
+// Mobile tap left/right
 canvas.addEventListener("pointerdown", (e)=>{
-  const rect = canvas.getBoundingClientRect();
-  const x = (e.clientX - rect.left) / rect.width;
-  const now = performance.now();
-  if(now - lastTap < 280) jump();
-  else {
-    player.vx = (x < 0.5) ? -6.5 : 6.5;
-    setTimeout(()=>{ player.vx = 0; }, 120);
-  }
-  lastTap = now;
+  const r = canvas.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width;
+  player.vx = x < 0.5 ? -2 : 2;
+  setTimeout(()=> player.vx = 0, 120);
 });
 
-btnStart.addEventListener("click", ()=>{ reset(); start(); });
-btnHow.addEventListener("click", ()=>{
-  showOverlay("¿Cómo se juega?",
-  `<p style="margin:0 0 10px; color:#c7d2fe; line-height:1.45">
-     <b>Objetivo:</b> junta <b style="color:#fbbf24">🎁 regalos</b> para subir puntos.<br/>
-     Evita <b style="color:#60a5fa">❄️ bolas de nieve</b> o pierdes vidas.<br/><br/>
-     <b>PC:</b> ← → / A D para moverte · <b>Espacio</b> para saltar.<br/>
-     <b>Móvil:</b> toca izquierda/derecha · <b>doble toque</b> para saltar.
-   </p>
-   <p style="margin:0; color:#c7d2fe">Meta: <b style="color:#fbbf24">${CONFIG.metaPuntosParaFinal}</b> puntos para desbloquear la carta 💌</p>`);
-});
-btnLetter.addEventListener("click", ()=>{
-  if(!state.unlockedLetter){
-    showOverlay("Carta navideña (bloqueada)",
-      `<p style="margin:0 0 10px; color:#c7d2fe">
-         Te falta llegar a <b style="color:#fbbf24">${CONFIG.metaPuntosParaFinal}</b> puntos.
-       </p>
-       <p style="margin:0; color:#c7d2fe">Juega otra ronda y vuelve 😉</p>`
-    );
-    return;
-  }
-  // inject names safely-ish
-  const html = CONFIG.cartaFinal
-    .replaceAll("Mi amor", CONFIG.parejaNombre)
-    .replaceAll("Yo", CONFIG.tuNombre);
-  showOverlay("Carta navideña 💌", html);
-});
-
-// click outside panel closes
-overlay.addEventListener("click", (e)=>{ if(e.target === overlay) hideOverlay(); });
-
-function start(){
-  state.running = true;
-  state.gameOver = false;
-  // initial spawns
-  for(let i=0;i<2;i++) spawnGift();
-  for(let i=0;i<1;i++) spawnSnowball();
-  draw();
-  raf = requestAnimationFrame(loop);
+/* ========= UI Buttons ========= */
+let cartaCompilada = "";
+function compileCarta(){
+  // Compila con nombres (por si editas luego)
+  const nameHer = escapeHtml(CONFIG.parejaNombre);
+  const nameYou = escapeHtml(CONFIG.tuNombre);
+  cartaCompilada = CONFIG.cartaHTML
+    .replaceAll("Janitzy", nameHer)
+    .replaceAll("Gael", nameYou);
 }
 
-/* =========================
-   Helpers
-   ========================= */
-function rand(a,b){ return a + Math.random()*(b-a); }
-function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-function dist(ax,ay,bx,by){ const dx=ax-bx, dy=ay-by; return Math.sqrt(dx*dx+dy*dy); }
+playBtn.addEventListener("click", ()=>{
+  compileCarta();
+  reset();
+  draw();
+  requestAnimationFrame(loop);
+});
 
-/* =========================
-   Pantalla inicial
-   ========================= */
-showOverlay("Bienvenida 🎄",
-  `<p style="margin:0 0 10px; color:#c7d2fe; line-height:1.45">
-     Para <b style="color:#fbbf24">${CONFIG.parejaNombre}</b> (de <b>${CONFIG.tuNombre}</b>).<br/>
-     Junta regalos 🎁, evita bolas de nieve ❄️ y desbloquea tu carta 💌
-   </p>
-   <p style="margin:0; color:#c7d2fe">Meta: <b style="color:#fbbf24">${CONFIG.metaPuntosParaFinal}</b> puntos</p>`
+noteBtn.addEventListener("click", ()=>{
+  compileCarta();
+  const unlocked = state.score >= CONFIG.meta || state.won;
+  if(!unlocked){
+    showOverlay("💌 Carta (bloqueada)", `Gana primero: llega a <b style="color:#fbbf24">${CONFIG.meta}</b> puntos.`);
+  } else {
+    showOverlay("💌 Carta navideña", cartaCompilada);
+  }
+});
+
+// click outside panel closes overlay (cuando ya estás jugando)
+overlay.addEventListener("click", (e)=>{ if(e.target === overlay && state.running) hideOverlay(); });
+
+/* ========= Helpers ========= */
+function pxRect(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x|0,y|0,w|0,h|0); }
+function pxCircle(cx,cy,r,c){
+  ctx.fillStyle=c;
+  for(let yy=-r; yy<=r; yy++){
+    for(let xx=-r; xx<=r; xx++){
+      if(xx*xx+yy*yy<=r*r) ctx.fillRect((cx+xx)|0,(cy+yy)|0,1,1);
+    }
+  }
+}
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function aabb(x,y,w,h, X,Y,W2,H2){
+  return x < X+W2 && x+w > X && y < Y+H2 && y+h > Y;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* ========= Initial screen ========= */
+showOverlay("🎁 Instrucciones",
+  `Para <b>${escapeHtml(CONFIG.parejaNombre)}</b> (de <b>${escapeHtml(CONFIG.tuNombre)}</b>).<br/>
+   Junta regalos 🎁 hasta llegar a <b style="color:#fbbf24">${CONFIG.meta}</b> puntos para desbloquear la carta 💌`
 );
 draw();
 </script>
 </body>
 </html>
+
