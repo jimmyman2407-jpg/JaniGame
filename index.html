@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pixel Navidad para Janitzy 🎄</title>
+  <title>Pixel Navidad para Amochi 🎄</title>
   <style>
     :root { --bg:#071225; --panel:rgba(10,18,38,.75); --ink:#eef2ff; --muted:#c7d2fe; --gold:#fbbf24; }
     *{box-sizing:border-box}
@@ -70,7 +70,7 @@
   <header>
     <div>
       <h1>Pixel Navidad 🎄</h1>
-      <p>Janitzy: muévete y junta regalos 🎁. Llega a <b>100</b> puntos para ganar 💌</p>
+      <p>Amochi: muévete y junta regalos 🎁. Llega a <b>100</b> puntos para ganar 💌</p>
     </div>
     <div class="hud">
       <div class="pill">Puntos: <b id="score">0</b>/100</div>
@@ -79,14 +79,13 @@
   </header>
 
   <div class="card">
-    <!-- Canvas interno bajo (pixel), escalado por CSS -->
     <canvas id="c" width="320" height="180"></canvas>
 
     <div class="overlay" id="overlay">
-      <div class="panel" id="panel">
+      <div class="panel">
         <h2 id="title">🎁 Instrucciones</h2>
         <p class="txt" id="text">
-          Controlas a <b>Janitzy</b> (sprite pixel).<br/>
+          Controlas a <b>Amochi</b> (sprite pixel).<br/>
           Muévete izquierda/derecha y recoge regalos.<br/>
           Cada regalo vale <b style="color:#fbbf24">10 puntos</b>. Con <b>100</b> ganas.
         </p>
@@ -101,49 +100,59 @@
 </div>
 
 <script>
-/* ========= CONFIG (personalizado) ========= */
+/* ========= CONFIG ========= */
 const CONFIG = {
-  parejaNombre: "Janitzy",
+  parejaNombre: "Amochi",
   tuNombre: "Gael",
   meta: 100,
   cartaHTML: `
-    <h2 style="margin:0 0 6px">💌 Feliz Navidad, Janitzy</h2>
+    <h2 style="margin:0 0 6px">💌 Feliz Navidad, Amochi</h2>
     <p style="margin:0 0 10px; color:#c7d2fe; line-height:1.45">
       Sé que ahorita estás de viaje, pero igual te siento cerquita.
       Te hice este mini juego para que, aunque sea un ratito, el mundo se sienta más ligero.
     </p>
     <p style="margin:0 0 10px; color:#c7d2fe; line-height:1.45">
-      Que esta Navidad te abrace bonito, sin prisa, y cuando vuelvas te debo un plan bien puesto:
-      luces, comida rica y un abrazo largo del tamaño de todo lo que te extraño.
+      Cuando vuelvas te debo un plan bien puesto: luces, comida rica y un abrazo largo
+      del tamaño de todo lo que te extraño.
     </p>
     <p style="margin:0; color:#c7d2fe">— Gael</p>
   `
 };
 
-/* ========= SPRITE (24x32) + PALETA ========= */
+/* ========= FONDO (tu imagen) =========
+   Pon el archivo en el repo como: bg_cdmx.jpg
+*/
+const BG_SRC = "bg_cdmx.jpg";
+const bgImg = new Image();
+bgImg.src = BG_SRC;
+let bgReady = false;
+bgImg.onload = ()=> bgReady = true;
+bgImg.onerror = ()=> { bgReady = false; console.warn("No se pudo cargar el fondo:", BG_SRC); };
+
+/* ========= SPRITE (24x32) ========= */
 const SPRITE_24x32 = [
 "..........OOOOOO........",
 "........OOhhhhhhOO......",
-".......OhhhhhhhhhhO.....",
-"......OhhhHhhhhHhhhO....",
-".....OhhhHhhhhhhHhhhO...",
+".......OhhhhhhhhhO......",
+"......OhhHhhhhHhhhO.....",
+".....OhhHhhhhhhhhhhO....",
 ".....OhhhhhsssshhhhO....",
-"....OhhhhhhsssshhhhhhO..",
-"....OhhhssskskssssshhO..",
-"....OhhhssssskssssshhO..",
+"....OhhhhsssssssshhhO...",
+"....OhhhsskksssssshhO...",
+"....OhhhsssssssssshhO...",
 ".....OhhhsssssssshhhO...",
 "......OhhhhhsshhhhhhO...",
 ".......OOhhhhhhhhOO.....",
 ".........OooooooO.......",
-".........OsssssO..ppp...",
-".........OsssssO.pPkkPp.", // <- carita del monito: 2 pixeles (ojos)
-".........OsssssO.pPkPp..",
-".........OsssssO..ppp...",
-"..........OwwwO...r.....",
-".........OwwwwwO..r.....",
-"........OwwwwwwwO.r.....",
-"........OwwwwwwwO.r.....",
-".........OwwwwwO..r.....",
+".........OsssssO........",
+".........OsssssO..ww....",
+".........OsssssO.wwww...",
+".........OsssssO..ww....",
+"..........OwwwO.........",
+".........OwwwwwO........",
+"........OwwwwwwwO.......",
+"........OwwwwwwwO.......",
+".........OwwwwwO........",
 "..........OwwwO.........",
 "..........JjjJ..........",
 ".........JjjjjJ.........",
@@ -151,30 +160,30 @@ const SPRITE_24x32 = [
 "........JjjjjjjJ........",
 ".........JjjjjJ.........",
 "..........JjjJ..........",
-"..........O..O..........",
-".........OO..OO.........",
-"........OO....OO........",
+"..........g..g..........",
+".........gg..gg.........",
+"........gg....gg........",
 ];
 
 const PALETTE = {
   ".": null,
   "O": "#101010", // outline
-  "o": "#282828", // sombreado interno outline
-  "h": "#3A261C", // cabello
-  "H": "#6A4A35", // luz cabello
-  "s": "#D7A483", // piel
-  "w": "#F3F3F3", // playera
-  "j": "#9BB7D8", // jeans
-  "J": "#6F8FB5", // sombra jeans
-  "p": "#FF3CAB", // monito
-  "P": "#C22079", // sombra monito
-  "r": "#DC2A2A", // cable rojo
-  "k": "#000000", // carita (ojitos)
+  "o": "#2a2a2a", // inner outline shade
+  "h": "#2b1b14", // hair (dark)
+  "H": "#4a2e23", // hair highlight
+  "s": "#d7a483", // skin
+  "k": "#000000", // eyes
+  "w": "#f3f3f3", // shirt
+  "j": "#2a76a9", // jeans
+  "J": "#1d5a84", // jeans shadow
+  "g": "#8a8a8a", // shoes
 };
 
-/* ========= GAME (sencillo) ========= */
+/* ========= GAME ========= */
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
+
+// Importante: dejamos smoothing OFF para pixel vibe
 ctx.imageSmoothingEnabled = false;
 
 const scoreEl = document.getElementById("score");
@@ -197,13 +206,11 @@ const state = {
 };
 bestEl.textContent = state.best;
 
-// Player = Janitzy sprite (24x32)
-const SPR_W = 24;
-const SPR_H = 32;
-const SPR_SCALE = 1; // si quieres más grande: 2 (ojo: puede salirse del canvas)
+const SPR_W = 24, SPR_H = 32;
+const SPR_SCALE = 1;
 const player = {
   x: W/2,
-  y: groundY,                 // y = "suelo" (pies)
+  y: groundY,
   w: SPR_W * SPR_SCALE,
   h: SPR_H * SPR_SCALE,
   vx: 0
@@ -251,41 +258,30 @@ function spawnGift(){
 function update(){
   state.t++;
 
-  // Snowfall
   for(const f of snow){
     f.y += f.vy;
     if(f.y > H+2){ f.y = -2; f.x = Math.random()*W; }
   }
 
-  // Spawn gifts
   if(state.t % 24 === 0) spawnGift();
 
-  // Move player (clamp según ancho sprite)
   player.x += player.vx;
   player.x = clamp(player.x, player.w/2, W - player.w/2);
 
-  // Player box (top-left)
   const pX = player.x - player.w/2;
   const pY = player.y - player.h;
 
-  // Move gifts + collisions
   for(let i=gifts.length-1;i>=0;i--){
     const g = gifts[i];
     g.y += g.vy;
 
-    // collision AABB (gift ~10x10)
     if(aabb(g.x-5,g.y-5,10,10, pX, pY, player.w, player.h)){
       gifts.splice(i,1);
       state.score += g.value;
       scoreEl.textContent = String(state.score);
-      if(state.score >= CONFIG.meta){
-        win();
-        return;
-      }
+      if(state.score >= CONFIG.meta){ win(); return; }
       continue;
     }
-
-    // offscreen
     if(g.y > H+10) gifts.splice(i,1);
   }
 }
@@ -306,45 +302,60 @@ function win(){
   );
 }
 
-function draw(){
-  // background
-  ctx.fillStyle = "#071225";
-  ctx.fillRect(0,0,W,H);
-
-  // moon (pixel)
-  pxCircle(270, 28, 10, "#c7d2fe");
-  pxCircle(267, 26, 3, "rgba(255,255,255,0.35)");
-
-  // stars
-  for(let i=0;i<40;i++){
-    const x = (i*67 + state.t*0.2) % W;
-    const y = (i*41) % (H-40);
-    pxRect(x|0, y|0, 1, 1, (i%7===0) ? "#60a5fa" : "#eef2ff");
+/* ======= DIBUJO DE FONDO CON FILTRO (clave) ======= */
+function drawBackground(){
+  // fallback si no carga
+  if(!bgReady){
+    ctx.fillStyle = "#071225";
+    ctx.fillRect(0,0,W,H);
+    return;
   }
 
-  // string lights (top)
+  // cover (tipo CSS background-size: cover)
+  const iw = bgImg.width, ih = bgImg.height;
+  const scale = Math.max(W/iw, H/ih);
+  const dw = iw * scale;
+  const dh = ih * scale;
+  const dx = (W - dw) / 2;
+  const dy = (H - dh) / 2;
+
+  // Filtro: blur + bajar brillo/saturación
+  ctx.save();
+  ctx.filter = "blur(1px) brightness(0.80) saturate(0.85)";
+  ctx.drawImage(bgImg, dx, dy, dw, dh);
+  ctx.restore();
+
+  // Velo oscuro suave para que lo del juego resalte
+  ctx.fillStyle = "rgba(7,18,37,0.55)";
+  ctx.fillRect(0,0,W,H);
+}
+
+function draw(){
+  drawBackground();
+
+  // lucecitas arriba (siguen visibles)
   for(let x=6; x<W; x+=20){
     const y = 14 + (((x/20)|0)%2);
-    pxRect(x, y, 2, 1, "rgba(255,255,255,0.25)");
+    pxRect(x, y, 2, 1, "rgba(255,255,255,0.20)");
     const c = ["#ef4444","#22c55e","#fbbf24","#60a5fa"][(((x/20)|0)%4)];
     pxRect(x, y+2, 3, 3, c);
   }
 
-  // snow
+  // nieve
   for(const f of snow){
     pxRect(f.x|0, f.y|0, 1, 1, "rgba(255,255,255,0.9)");
   }
 
-  // ground
-  pxRect(0, groundY+2, W, H-(groundY+2), "rgba(255,255,255,0.10)");
+  // suelo (para que se note el piso aunque el fondo sea “busy”)
+  pxRect(0, groundY+2, W, H-(groundY+2), "rgba(255,255,255,0.12)");
   pxRect(0, groundY+1, W, 1, "rgba(255,255,255,0.18)");
 
-  // gifts
+  // regalos
   for(const g of gifts){
     drawGift(g.x|0, g.y|0);
   }
 
-  // player sprite (Janitzy)
+  // sprite (Amochi)
   const topLeftX = (player.x - player.w/2) | 0;
   const topLeftY = (player.y - player.h) | 0;
   drawSprite(SPRITE_24x32, PALETTE, topLeftX, topLeftY, SPR_SCALE);
@@ -357,14 +368,11 @@ function loop(){
   requestAnimationFrame(loop);
 }
 
-/* ========= Pixel sprites ========= */
+/* ========= Sprites ========= */
 function drawGift(x,y){
-  // box 8x8
   pxRect(x-4, y-4, 8, 8, "#22c55e");
-  // ribbon
   pxRect(x-1, y-4, 2, 8, "#ef4444");
   pxRect(x-4, y-1, 8, 2, "#ef4444");
-  // shine
   pxRect(x-3, y-3, 2, 1, "rgba(255,255,255,0.35)");
 }
 
@@ -380,7 +388,7 @@ function drawSprite(spriteLines, palette, x, y, scale=1){
   }
 }
 
-/* ========= Controls ========= */
+/* ========= Controles ========= */
 const keys = new Set();
 addEventListener("keydown", e=>{
   keys.add(e.key.toLowerCase());
@@ -397,7 +405,6 @@ function applyMove(){
   player.vx = (right? 2 : 0) + (left? -2 : 0);
 }
 
-// Mobile tap left/right
 canvas.addEventListener("pointerdown", (e)=>{
   const r = canvas.getBoundingClientRect();
   const x = (e.clientX - r.left) / r.width;
@@ -405,14 +412,13 @@ canvas.addEventListener("pointerdown", (e)=>{
   setTimeout(()=> player.vx = 0, 120);
 });
 
-/* ========= UI Buttons ========= */
+/* ========= UI ========= */
 let cartaCompilada = "";
 function compileCarta(){
-  // Compila con nombres (por si editas luego)
   const nameHer = escapeHtml(CONFIG.parejaNombre);
   const nameYou = escapeHtml(CONFIG.tuNombre);
   cartaCompilada = CONFIG.cartaHTML
-    .replaceAll("Janitzy", nameHer)
+    .replaceAll("Amochi", nameHer)
     .replaceAll("Gael", nameYou);
 }
 
@@ -433,19 +439,10 @@ noteBtn.addEventListener("click", ()=>{
   }
 });
 
-// click outside panel closes overlay (cuando ya estás jugando)
 overlay.addEventListener("click", (e)=>{ if(e.target === overlay && state.running) hideOverlay(); });
 
 /* ========= Helpers ========= */
 function pxRect(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x|0,y|0,w|0,h|0); }
-function pxCircle(cx,cy,r,c){
-  ctx.fillStyle=c;
-  for(let yy=-r; yy<=r; yy++){
-    for(let xx=-r; xx<=r; xx++){
-      if(xx*xx+yy*yy<=r*r) ctx.fillRect((cx+xx)|0,(cy+yy)|0,1,1);
-    }
-  }
-}
 function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
 function aabb(x,y,w,h, X,Y,W2,H2){
   return x < X+W2 && x+w > X && y < Y+H2 && y+h > Y;
@@ -454,7 +451,7 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-/* ========= Initial screen ========= */
+/* ========= Pantalla inicial ========= */
 showOverlay("🎁 Instrucciones",
   `Para <b>${escapeHtml(CONFIG.parejaNombre)}</b> (de <b>${escapeHtml(CONFIG.tuNombre)}</b>).<br/>
    Junta regalos 🎁 hasta llegar a <b style="color:#fbbf24">${CONFIG.meta}</b> puntos para desbloquear la carta 💌`
@@ -463,4 +460,3 @@ draw();
 </script>
 </body>
 </html>
-
