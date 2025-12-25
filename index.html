@@ -63,6 +63,43 @@
       color:var(--ink); font-weight:800;
     }
     .tiny{font-size:12px; color:var(--muted)}
+
+    /* =========================
+       RESPONSIVE (solo CSS)
+       ========================= */
+    @media (max-width: 720px){
+      body{ padding:12px; }
+      .wrap{ gap:10px; }
+      header{ align-items:flex-start; }
+      p{ font-size:13px; }
+      .card{ padding:10px; border-radius:16px; }
+      canvas{ border-radius:10px; }
+      .overlay{ inset:10px; }
+      .panel{
+        width: 100%;
+        border-radius:14px;
+        padding:12px 12px 10px;
+      }
+      .panel h2{ font-size:16px; }
+      .panel .txt{ font-size:13px; }
+      button{ padding:10px 12px; border-radius:12px; }
+    }
+
+    /* teléfonos pequeños: asegura que el canvas no se vuelva enano */
+    @media (max-width: 420px){
+      body{ padding:10px; }
+      .pill{ padding:7px 10px; font-size:12px; }
+      .panel .txt{ line-height:1.3; }
+      .row{ gap:8px; }
+      button{ width:100%; } /* botones en columna, más cómodo en móvil */
+      .row{ flex-direction:column; }
+    }
+
+    /* pantallas grandes: centra y deja aire */
+    @media (min-width: 1100px){
+      body{ padding:24px; }
+      .wrap{ width:min(980px, 100%); }
+    }
   </style>
 </head>
 <body>
@@ -120,8 +157,8 @@ const CONFIG = {
 };
 
 /* ========= ASSETS (archivos en el repo) ========= */
-const BG_SRC = "bg_cdmx.jpg";     // <- sube el fondo con este nombre
-const AVATAR_SRC = "avatar.png";  // <- sube el avatar con este nombre
+const BG_SRC = "bg_cdmx.jpg";
+const AVATAR_SRC = "avatar.png";
 
 const bgImg = new Image();
 bgImg.src = BG_SRC;
@@ -158,12 +195,8 @@ const state = {
 };
 bestEl.textContent = state.best;
 
-/* ========= Player (usa avatar.png) =========
-   Aquí defines el tamaño en el mundo del juego.
-   Si lo quieres más grande: sube DRAW_H (ej. 46)
-*/
-const AVATAR_DRAW_H = 40;              // altura del personaje en el canvas (pixeles del canvas)
-const AVATAR_DRAW_W = 40;              // ancho (cuadrado para que no se deforme)
+const AVATAR_DRAW_H = 40;
+const AVATAR_DRAW_W = 40;
 const player = {
   x: W/2,
   y: groundY,
@@ -175,7 +208,6 @@ const player = {
 const gifts = [];
 const snow  = [];
 
-/* ========= LOOP ========= */
 function reset(){
   state.running = true;
   state.score = 0;
@@ -215,24 +247,19 @@ function spawnGift(){
 function update(){
   state.t++;
 
-  // nieve
   for(const f of snow){
     f.y += f.vy;
     if(f.y > H+2){ f.y = -2; f.x = Math.random()*W; }
   }
 
-  // spawn regalos
   if(state.t % 24 === 0) spawnGift();
 
-  // mover player
   player.x += player.vx;
   player.x = clamp(player.x, player.w/2, W - player.w/2);
 
-  // caja de colisión del player
   const pX = player.x - player.w/2;
   const pY = player.y - player.h;
 
-  // mover regalos + colisiones
   for(let i=gifts.length-1;i>=0;i--){
     const g = gifts[i];
     g.y += g.vy;
@@ -264,7 +291,6 @@ function win(){
   );
 }
 
-/* ======= Fondo con filtro ======= */
 function drawBackground(){
   if(!bgReady){
     ctx.fillStyle = "#071225";
@@ -284,7 +310,6 @@ function drawBackground(){
   ctx.drawImage(bgImg, dx, dy, dw, dh);
   ctx.restore();
 
-  // velo para que el juego destaque
   ctx.fillStyle = "rgba(7,18,37,0.55)";
   ctx.fillRect(0,0,W,H);
 }
@@ -292,7 +317,6 @@ function drawBackground(){
 function draw(){
   drawBackground();
 
-  // lucecitas arriba
   for(let x=6; x<W; x+=20){
     const y = 14 + (((x/20)|0)%2);
     pxRect(x, y, 2, 1, "rgba(255,255,255,0.20)");
@@ -300,21 +324,17 @@ function draw(){
     pxRect(x, y+2, 3, 3, c);
   }
 
-  // nieve
   for(const f of snow){
     pxRect(f.x|0, f.y|0, 1, 1, "rgba(255,255,255,0.9)");
   }
 
-  // suelo
   pxRect(0, groundY+2, W, H-(groundY+2), "rgba(255,255,255,0.12)");
   pxRect(0, groundY+1, W, 1, "rgba(255,255,255,0.18)");
 
-  // regalos
   for(const g of gifts){
     drawGift(g.x|0, g.y|0);
   }
 
-  // personaje (avatar.png)
   drawAvatar();
 }
 
@@ -323,18 +343,14 @@ function drawAvatar(){
   const y = (player.y - player.h) | 0;
 
   if(!avatarReady){
-    // fallback (si no carga el avatar)
     pxRect(x, y, player.w, player.h, "rgba(255,255,255,0.25)");
     pxRect(x+2, y+2, player.w-4, player.h-4, "rgba(0,0,0,0.25)");
     return;
   }
 
-  // aseguramos pixel-crisp
   ctx.save();
   ctx.imageSmoothingEnabled = false;
 
-  // dibujamos el avatar “centrado” y sin deformar:
-  // lo metemos en un cuadro (player.w x player.h) tipo cover con crop suave
   const iw = avatarImg.width, ih = avatarImg.height;
   const scale = Math.max(player.w/iw, player.h/ih);
   const sw = player.w / scale;
@@ -345,7 +361,6 @@ function drawAvatar(){
   ctx.drawImage(avatarImg, sx, sy, sw, sh, x, y, player.w, player.h);
   ctx.restore();
 
-  // sombrita suave para que resalte sobre el fondo
   ctx.fillStyle = "rgba(0,0,0,0.18)";
   ctx.fillRect(x, y + player.h - 2, player.w, 2);
 }
@@ -357,7 +372,6 @@ function loop(){
   requestAnimationFrame(loop);
 }
 
-/* ========= Dibujos ========= */
 function drawGift(x,y){
   pxRect(x-4, y-4, 8, 8, "#22c55e");
   pxRect(x-1, y-4, 2, 8, "#ef4444");
@@ -365,7 +379,6 @@ function drawGift(x,y){
   pxRect(x-3, y-3, 2, 1, "rgba(255,255,255,0.35)");
 }
 
-/* ========= Controles ========= */
 const keys = new Set();
 addEventListener("keydown", e=>{
   keys.add(e.key.toLowerCase());
@@ -389,7 +402,6 @@ canvas.addEventListener("pointerdown", (e)=>{
   setTimeout(()=> player.vx = 0, 120);
 });
 
-/* ========= UI ========= */
 let cartaCompilada = "";
 function compileCarta(){
   const nameHer = escapeHtml(CONFIG.parejaNombre);
@@ -418,7 +430,6 @@ noteBtn.addEventListener("click", ()=>{
 
 overlay.addEventListener("click", (e)=>{ if(e.target === overlay && state.running) hideOverlay(); });
 
-/* ========= Helpers ========= */
 function pxRect(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x|0,y|0,w|0,h|0); }
 function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
 function aabb(x,y,w,h, X,Y,W2,H2){
@@ -428,7 +439,6 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-/* ========= Pantalla inicial ========= */
 showOverlay("🎁 Instrucciones",
   `Para <b>${escapeHtml(CONFIG.parejaNombre)}</b> (de <b>${escapeHtml(CONFIG.tuNombre)}</b>).<br/>
    Junta regalos 🎁 hasta llegar a <b style="color:#fbbf24">${CONFIG.meta}</b> puntos para desbloquear la carta 💌`
