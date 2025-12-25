@@ -85,7 +85,7 @@
       <div class="panel">
         <h2 id="title">🎁 Instrucciones</h2>
         <p class="txt" id="text">
-          Controlas a <b>Amochi</b> (sprite pixel).<br/>
+          Controlas a <b>Amochi</b> (avatar pixel).<br/>
           Muévete izquierda/derecha y recoge regalos.<br/>
           Cada regalo vale <b style="color:#fbbf24">10 puntos</b>. Con <b>100</b> ganas.
         </p>
@@ -119,71 +119,23 @@ const CONFIG = {
   `
 };
 
-/* ========= FONDO (tu imagen) =========
-   Pon el archivo en el repo como: bg_cdmx.jpg
-*/
-const BG_SRC = "bg_cdmx.jpg";
+/* ========= ASSETS (archivos en el repo) ========= */
+const BG_SRC = "bg_cdmx.jpg";     // <- sube el fondo con este nombre
+const AVATAR_SRC = "avatar.png";  // <- sube el avatar con este nombre
+
 const bgImg = new Image();
 bgImg.src = BG_SRC;
 let bgReady = false;
 bgImg.onload = ()=> bgReady = true;
-bgImg.onerror = ()=> { bgReady = false; console.warn("No se pudo cargar el fondo:", BG_SRC); };
 
-/* ========= SPRITE (24x32) ========= */
-const SPRITE_24x32 = [
-"..........OOOOOO........",
-"........OOhhhhhhOO......",
-".......OhhhhhhhhhO......",
-"......OhhHhhhhHhhhO.....",
-".....OhhHhhhhhhhhhhO....",
-".....OhhhhhsssshhhhO....",
-"....OhhhhsssssssshhhO...",
-"....OhhhsskksssssshhO...",
-"....OhhhsssssssssshhO...",
-".....OhhhsssssssshhhO...",
-"......OhhhhhsshhhhhhO...",
-".......OOhhhhhhhhOO.....",
-".........OooooooO.......",
-".........OsssssO........",
-".........OsssssO..ww....",
-".........OsssssO.wwww...",
-".........OsssssO..ww....",
-"..........OwwwO.........",
-".........OwwwwwO........",
-"........OwwwwwwwO.......",
-"........OwwwwwwwO.......",
-".........OwwwwwO........",
-"..........OwwwO.........",
-"..........JjjJ..........",
-".........JjjjjJ.........",
-"........JjjjjjjJ........",
-"........JjjjjjjJ........",
-".........JjjjjJ.........",
-"..........JjjJ..........",
-"..........g..g..........",
-".........gg..gg.........",
-"........gg....gg........",
-];
-
-const PALETTE = {
-  ".": null,
-  "O": "#101010", // outline
-  "o": "#2a2a2a", // inner outline shade
-  "h": "#2b1b14", // hair (dark)
-  "H": "#4a2e23", // hair highlight
-  "s": "#d7a483", // skin
-  "k": "#000000", // eyes
-  "w": "#f3f3f3", // shirt
-  "j": "#2a76a9", // jeans
-  "J": "#1d5a84", // jeans shadow
-  "g": "#8a8a8a", // shoes
-};
+const avatarImg = new Image();
+avatarImg.src = AVATAR_SRC;
+let avatarReady = false;
+avatarImg.onload = ()=> avatarReady = true;
 
 /* ========= GAME ========= */
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
-
-// Importante: dejamos smoothing OFF para pixel vibe
 ctx.imageSmoothingEnabled = false;
 
 const scoreEl = document.getElementById("score");
@@ -206,19 +158,24 @@ const state = {
 };
 bestEl.textContent = state.best;
 
-const SPR_W = 24, SPR_H = 32;
-const SPR_SCALE = 1;
+/* ========= Player (usa avatar.png) =========
+   Aquí defines el tamaño en el mundo del juego.
+   Si lo quieres más grande: sube DRAW_H (ej. 46)
+*/
+const AVATAR_DRAW_H = 40;              // altura del personaje en el canvas (pixeles del canvas)
+const AVATAR_DRAW_W = 40;              // ancho (cuadrado para que no se deforme)
 const player = {
   x: W/2,
   y: groundY,
-  w: SPR_W * SPR_SCALE,
-  h: SPR_H * SPR_SCALE,
+  w: AVATAR_DRAW_W,
+  h: AVATAR_DRAW_H,
   vx: 0
 };
 
 const gifts = [];
 const snow  = [];
 
+/* ========= LOOP ========= */
 function reset(){
   state.running = true;
   state.score = 0;
@@ -258,19 +215,24 @@ function spawnGift(){
 function update(){
   state.t++;
 
+  // nieve
   for(const f of snow){
     f.y += f.vy;
     if(f.y > H+2){ f.y = -2; f.x = Math.random()*W; }
   }
 
+  // spawn regalos
   if(state.t % 24 === 0) spawnGift();
 
+  // mover player
   player.x += player.vx;
   player.x = clamp(player.x, player.w/2, W - player.w/2);
 
+  // caja de colisión del player
   const pX = player.x - player.w/2;
   const pY = player.y - player.h;
 
+  // mover regalos + colisiones
   for(let i=gifts.length-1;i>=0;i--){
     const g = gifts[i];
     g.y += g.vy;
@@ -302,16 +264,14 @@ function win(){
   );
 }
 
-/* ======= DIBUJO DE FONDO CON FILTRO (clave) ======= */
+/* ======= Fondo con filtro ======= */
 function drawBackground(){
-  // fallback si no carga
   if(!bgReady){
     ctx.fillStyle = "#071225";
     ctx.fillRect(0,0,W,H);
     return;
   }
 
-  // cover (tipo CSS background-size: cover)
   const iw = bgImg.width, ih = bgImg.height;
   const scale = Math.max(W/iw, H/ih);
   const dw = iw * scale;
@@ -319,13 +279,12 @@ function drawBackground(){
   const dx = (W - dw) / 2;
   const dy = (H - dh) / 2;
 
-  // Filtro: blur + bajar brillo/saturación
   ctx.save();
   ctx.filter = "blur(1px) brightness(0.80) saturate(0.85)";
   ctx.drawImage(bgImg, dx, dy, dw, dh);
   ctx.restore();
 
-  // Velo oscuro suave para que lo del juego resalte
+  // velo para que el juego destaque
   ctx.fillStyle = "rgba(7,18,37,0.55)";
   ctx.fillRect(0,0,W,H);
 }
@@ -333,7 +292,7 @@ function drawBackground(){
 function draw(){
   drawBackground();
 
-  // lucecitas arriba (siguen visibles)
+  // lucecitas arriba
   for(let x=6; x<W; x+=20){
     const y = 14 + (((x/20)|0)%2);
     pxRect(x, y, 2, 1, "rgba(255,255,255,0.20)");
@@ -346,7 +305,7 @@ function draw(){
     pxRect(f.x|0, f.y|0, 1, 1, "rgba(255,255,255,0.9)");
   }
 
-  // suelo (para que se note el piso aunque el fondo sea “busy”)
+  // suelo
   pxRect(0, groundY+2, W, H-(groundY+2), "rgba(255,255,255,0.12)");
   pxRect(0, groundY+1, W, 1, "rgba(255,255,255,0.18)");
 
@@ -355,10 +314,40 @@ function draw(){
     drawGift(g.x|0, g.y|0);
   }
 
-  // sprite (Amochi)
-  const topLeftX = (player.x - player.w/2) | 0;
-  const topLeftY = (player.y - player.h) | 0;
-  drawSprite(SPRITE_24x32, PALETTE, topLeftX, topLeftY, SPR_SCALE);
+  // personaje (avatar.png)
+  drawAvatar();
+}
+
+function drawAvatar(){
+  const x = (player.x - player.w/2) | 0;
+  const y = (player.y - player.h) | 0;
+
+  if(!avatarReady){
+    // fallback (si no carga el avatar)
+    pxRect(x, y, player.w, player.h, "rgba(255,255,255,0.25)");
+    pxRect(x+2, y+2, player.w-4, player.h-4, "rgba(0,0,0,0.25)");
+    return;
+  }
+
+  // aseguramos pixel-crisp
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+
+  // dibujamos el avatar “centrado” y sin deformar:
+  // lo metemos en un cuadro (player.w x player.h) tipo cover con crop suave
+  const iw = avatarImg.width, ih = avatarImg.height;
+  const scale = Math.max(player.w/iw, player.h/ih);
+  const sw = player.w / scale;
+  const sh = player.h / scale;
+  const sx = (iw - sw) / 2;
+  const sy = (ih - sh) / 2;
+
+  ctx.drawImage(avatarImg, sx, sy, sw, sh, x, y, player.w, player.h);
+  ctx.restore();
+
+  // sombrita suave para que resalte sobre el fondo
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.fillRect(x, y + player.h - 2, player.w, 2);
 }
 
 function loop(){
@@ -368,24 +357,12 @@ function loop(){
   requestAnimationFrame(loop);
 }
 
-/* ========= Sprites ========= */
+/* ========= Dibujos ========= */
 function drawGift(x,y){
   pxRect(x-4, y-4, 8, 8, "#22c55e");
   pxRect(x-1, y-4, 2, 8, "#ef4444");
   pxRect(x-4, y-1, 8, 2, "#ef4444");
   pxRect(x-3, y-3, 2, 1, "rgba(255,255,255,0.35)");
-}
-
-function drawSprite(spriteLines, palette, x, y, scale=1){
-  for(let row=0; row<spriteLines.length; row++){
-    const line = spriteLines[row];
-    for(let col=0; col<line.length; col++){
-      const ch = line[col];
-      const color = palette[ch];
-      if(!color) continue;
-      pxRect(x + col*scale, y + row*scale, scale, scale, color);
-    }
-  }
 }
 
 /* ========= Controles ========= */
@@ -460,3 +437,4 @@ draw();
 </script>
 </body>
 </html>
+
